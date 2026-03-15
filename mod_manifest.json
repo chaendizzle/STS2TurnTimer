@@ -1,0 +1,7 @@
+{
+  "pck_name": "STS2TurnTimer",
+  "name": "Turn Timer",
+  "author": "STS2TurnTimer",
+  "description": "Shows a countdown timer when other players are waiting for you to end your turn.",
+  "version": "v1.0"
+}
