@@ -24,7 +24,7 @@ public static class ModSettingsPatch
             existing.QueueFree();
 
         // Only inject for our mod
-        if (mod.pckName != "STS2TurnTimer") return;
+        if (mod.manifest?.id != "STS2TurnTimer") return;
 
         try
         {

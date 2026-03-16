@@ -20,6 +20,7 @@
     <PropertyGroup Condition="'$(IsWindows)' == 'true'">
         <AutoSteamPath>$(registry:HKEY_CURRENT_USER\Software\Valve\Steam@SteamPath)\steamapps</AutoSteamPath>
         <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and Exists('$(AutoSteamPath)/common/Slay the Spire 2')">$(AutoSteamPath)</SteamLibraryPath>
+        <SteamLibraryPath Condition="'$(SteamLibraryPath)' == '' and Exists('E:/SteamLibrary/steamapps/common/Slay the Spire 2')">E:/SteamLibrary/steamapps</SteamLibraryPath>
         <SteamLibraryPath Condition="'$(SteamLibraryPath)' == ''">C:/Program Files (x86)/Steam/steamapps</SteamLibraryPath>
         <Sts2Path Condition="'$(Sts2Path)' == ''">$(SteamLibraryPath)/common/Slay the Spire 2</Sts2Path>
         <!-- Local game path fallback -->
