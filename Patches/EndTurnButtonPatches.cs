@@ -15,7 +15,8 @@ namespace STS2TurnTimer.Patches;
 public static class EndTurnButtonPatches
 {
     /// <summary>
-    /// Checks if all non-local players have ended their turn.
+    /// Checks if all non-local alive players have ended their turn.
+    /// Dead players are skipped since they can't act.
     /// </summary>
     private static bool AreAllOtherPlayersReady(CombatState combatState)
     {
@@ -25,6 +26,7 @@ public static class EndTurnButtonPatches
         foreach (var player in combatState.Players)
         {
             if (LocalContext.IsMe(player)) continue;
+            if (player.Creature.IsDead) continue;
             if (!CombatManager.Instance.IsPlayerReadyToEndTurn(player))
                 return false;
         }
@@ -37,6 +39,23 @@ public static class EndTurnButtonPatches
     private static bool IsMultiplayer(CombatState combatState)
     {
         return combatState.Players.Count > 1;
+    }
+
+    /// <summary>
+    /// Returns true if the local player is the only alive player.
+    /// No point running a timer if there's nobody to wait for.
+    /// </summary>
+    private static bool IsOnlyAlivePlayer(CombatState combatState)
+    {
+        var localPlayer = LocalContext.GetMe(combatState);
+        if (localPlayer == null) return false;
+
+        foreach (var player in combatState.Players)
+        {
+            if (LocalContext.IsMe(player)) continue;
+            if (player.Creature.IsAlive) return false;
+        }
+        return true;
     }
 
     /// <summary>
@@ -117,7 +136,10 @@ public static class EndTurnButtonPatches
                 if (CombatManager.Instance.AllPlayersReadyToEndTurn())
                     return;
 
-                // Check if all OTHER players have ended their turn
+                // Don't start timer if we're the only one alive
+                if (IsOnlyAlivePlayer(combatState)) return;
+
+                // Check if all OTHER alive players have ended their turn
                 if (TimerConfig.StartTimerFromTurnStart || AreAllOtherPlayersReady(combatState))
                 {
                     if (!timerBar.IsActive)
@@ -150,6 +172,8 @@ public static class EndTurnButtonPatches
                 if (LocalContext.IsMe(player))
                 {
                     var combatState = player.Creature.CombatState;
+                    if (combatState != null && IsOnlyAlivePlayer(combatState)) return;
+
                     if (combatState != null && !TimerConfig.StartTimerFromTurnStart)
                     {
                         if (AreAllOtherPlayersReady(combatState))
@@ -202,8 +226,11 @@ public static class EndTurnButtonPatches
                 timerBar.StopTimer();
 
                 // If StartTimerFromTurnStart is on, start immediately on player turn
+                // (but not if we're the only one alive)
                 if (TimerConfig.StartTimerFromTurnStart && state.CurrentSide == CombatSide.Player)
                 {
+                    if (IsOnlyAlivePlayer(state)) return;
+
                     var localPlayer = LocalContext.GetMe(state);
                     if (localPlayer != null && !CombatManager.Instance.IsPlayerReadyToEndTurn(localPlayer))
                     {
