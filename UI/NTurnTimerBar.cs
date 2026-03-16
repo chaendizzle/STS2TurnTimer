@@ -194,7 +194,7 @@ public partial class NTurnTimerBar : Control
     /// </summary>
     public void StartTimer()
     {
-        _duration = TimerConfig.TimerDurationSeconds;
+        _duration = TimerConfig.TimerDurationSecondsInt;
         _elapsed = 0;
         _autoEndTriggered = false;
         _state = TimerState.Running;
